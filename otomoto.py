@@ -142,6 +142,7 @@ class Otomoto():
     @staticmethod
     def get_n_top_values(data, n):
         return dict(heapq.nlargest(n, data.items(), key=itemgetter(1)))
+
     @staticmethod
     def make_graph(data, graph_name):
         names = list(data.keys())
@@ -188,7 +189,8 @@ if __name__ == "__main__":
 
     start_time = time.time()
     # url = sys.argv[1]
-    url= 'https://www.otomoto.pl/osobowe/od-2000/?search%5Bfilter_float_price%3Ato%5D=3000&search%5Bfilter_float_year%3Ato%5D=2000&search%5Bcountry%5D='
+    # url= 'https://www.otomoto.pl/osobowe/od-2000/?search%5Bfilter_float_price%3Ato%5D=3000&search%5Bfilter_float_year%3Ato%5D=2000&search%5Bcountry%5D='
+    url= 'https://www.otomoto.pl/osobowe/od-2008/?search%5Bcountry%5D='
     o = Otomoto(url)
     o.scan_offers()
     # o.get_data()
