@@ -5,6 +5,9 @@ import math
 import sys
 import time
 import tqdm
+import heapq
+from operator import itemgetter
+import matplotlib.pyplot as plt
 
 class Otomoto():
     headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:63.0) Gecko/20100101 Firefox/63.0'}
@@ -29,7 +32,7 @@ class Otomoto():
         pages = soup.find_all('span', 'page')
         return int(pages[-1].text.strip())
 
-    def get_offers(self, ):
+    def scan_offers(self, ):
         for page in tqdm.tqdm(range(1, self._count_pages() + 1)):  # self._count_pages() + 1
             url = self.base_url + '&page={}'.format(page)
             r = requests.get(url, headers=self.headers).text
@@ -136,6 +139,22 @@ class Otomoto():
                                                                                     engine_displacement=list(self._get_most_popular_value(self.engine_displacements).keys())[0])
         print(msg)
 
+    @staticmethod
+    def get_n_top_values(data, n):
+        return dict(heapq.nlargest(n, data.items(), key=itemgetter(1)))
+    @staticmethod
+    def make_graph(data, graph_name):
+        names = list(data.keys())
+        values = list(data.values())
+        plt.bar(range(len(data)), values, tick_label=names)
+        plt.xticks(rotation=45, horizontalalignment='right')
+        plt.title(graph_name)
+        plt.tight_layout()
+        plt.savefig('top_n_{}.png'.format(graph_name))
+        plt.show()
+
+    def display_bar_chart_with_top_n_values(self, n, data, graph_name):
+        self.make_graph(self.get_n_top_values(data, n), graph_name)
 
     def test(self):
         r = requests.get(self.base_url, headers=self.headers).text
@@ -168,9 +187,14 @@ if __name__ == "__main__":
     # # o.test()
 
     start_time = time.time()
-    url = sys.argv[1]
+    # url = sys.argv[1]
+    url= 'https://www.otomoto.pl/osobowe/od-2000/?search%5Bfilter_float_price%3Ato%5D=3000&search%5Bfilter_float_year%3Ato%5D=2000&search%5Bcountry%5D='
     o = Otomoto(url)
-    o.get_offers()
+    o.scan_offers()
     # o.get_data()
     o.print_raport()
+    o.display_bar_chart_with_top_n_values(10, o.car_names, 'Cars')
+    o.display_bar_chart_with_top_n_values(10, o.prod_years, 'Production years')
+    o.display_bar_chart_with_top_n_values(10, o.engine_displacements, 'Engine displacements')
+    o.display_bar_chart_with_top_n_values(10, o.fuel_types, 'Fuel types')
     print(time.time()-start_time)
